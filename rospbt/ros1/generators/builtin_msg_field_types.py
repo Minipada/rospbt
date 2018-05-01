@@ -15,8 +15,12 @@ message field types which are usable in both, ROS1 and ROS2
 
 """
 
+from collections import namedtuple
 import datetime
-from hypothesis.strategies import booleans, datetimes, floats, integers
+from hypothesis.strategies import booleans, composite, datetimes, floats, \
+    integers
+
+_Time = namedtuple('Time', 'secs nsecs')
 
 INT8_MIN_VALUE = -1 * 2 ^ 7
 """int: Minimal Int8 value (-1 * 2^7)."""
@@ -321,3 +325,20 @@ def date(min_value=DATE_MIN_VALUE, max_value=DATE_MAX_VALUE):
 
     """
     return datetimes(min_value, max_value)
+
+
+@composite
+def time(draw, time=float32()):
+    """
+    Generate value for ROS builtin message "time".
+
+    Parameters
+    ----------
+    time : hypothesis.strategies.floats()
+        Strategy to generate time value.
+    """
+    float_secs = draw(time)
+    secs = int(float_secs)
+    nsecs = int((float_secs - secs) * 1000000000)
+
+    return _Time(secs, nsecs)

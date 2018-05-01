@@ -3,7 +3,6 @@
 Unit tests for the generators of the built-in message field datatypes.
 """
 
-import datetime
 from hypothesis import given
 from rospbt.ros1.generators import builtin_msg_field_types
 
@@ -82,3 +81,17 @@ def test_date_generates_in_range_value_per_default(generated_value):
     """Verify default min. generated value for Date."""
     assert generated_value >= builtin_msg_field_types.DATE_MIN_VALUE
     assert generated_value <= builtin_msg_field_types.DATE_MAX_VALUE
+
+@given(builtin_msg_field_types.time(
+    builtin_msg_field_types.float32(min_value=0.0,
+                                    max_value=builtin_msg_field_types.UINT32_MAX_VALUE
+                                    ))
+)
+def test_time_generates_in_range_value_per_default(generated_value):
+    """Verify default min. generated value for Time."""
+    secs = generated_value.secs
+    nsecs = generated_value.nsecs
+    assert secs  <= builtin_msg_field_types.UINT32_MAX_VALUE
+    assert nsecs <= builtin_msg_field_types.UINT32_MAX_VALUE
+    assert secs  >= builtin_msg_field_types.UINT32_MIN_VALUE
+    assert nsecs >= builtin_msg_field_types.UINT32_MIN_VALUE
